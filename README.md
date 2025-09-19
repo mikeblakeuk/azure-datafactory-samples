@@ -63,5 +63,3 @@ Run the Program.cs
 
 <img width="447" height="133" alt="image" src="https://github.com/user-attachments/assets/76475d7e-f7e7-44ca-a7bb-45c90b822e26" />
 
-## Sample output
-
