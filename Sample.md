@@ -2,7 +2,6 @@
 ### Sample output
 
 ```json
-Getting an existing resource group ...
 Creating a linked service lakehouseLinkedService...
 {
   "id": "/HIDDEN/providers/Microsoft.DataFactory/factories/datafactory-2025-09-19-1423/linkedservices/lakehouseLinkedService",
@@ -21,8 +20,6 @@ Creating a linked service lakehouseLinkedService...
   },
   "etag": "530618b9-0000-0100-0000-68cd676c0000"
 }
----------------------------------------------
-
 Creating dataset source lakehouseDataSetSource...
 {
   "id": "/HIDDEN/providers/Microsoft.DataFactory/factories/datafactory-2025-09-19-1423/datasets/lakehouseDataSetSource",
@@ -62,8 +59,6 @@ Creating dataset source lakehouseDataSetSource...
   },
   "etag": "53064fb9-0000-0100-0000-68cd676d0000"
 }
----------------------------------------------
-
 Creating dataset sink lakehouseDataSetSink...
 {
   "id": "/HIDDEN/providers/Microsoft.DataFactory/factories/datafactory-2025-09-19-1423/datasets/lakehouseDataSetSink",
@@ -82,8 +77,6 @@ Creating dataset sink lakehouseDataSetSink...
   },
   "etag": "530668b9-0000-0100-0000-68cd676d0000"
 }
----------------------------------------------
-
 Creating Data Flow lakehouseDataFlow...
 {
   "id": "/HIDDEN/providers/Microsoft.DataFactory/factories/datafactory-2025-09-19-1423/dataflows/lakehouseDataFlow",
@@ -115,10 +108,6 @@ Creating Data Flow lakehouseDataFlow...
   },
   "etag": "5306eeb9-0000-0100-0000-68cd676e0000"
 }
----------------------------------------------
-
-
----------------------------------------------
 Creating pipelinelakehousePipeline...
 {
   "id": "/HIDDEN/providers/Microsoft.DataFactory/factories/datafactory-2025-09-19-1423/pipelines/lakehousePipeline",
@@ -164,13 +153,8 @@ Creating pipelinelakehousePipeline...
   },
   "etag": "53060bba-0000-0100-0000-68cd676e0000"
 }
----------------------------------------------
-
 Creating pipeline run...
 Pipeline run ID: 95899a83-e7d9-4e61-ba04-fbc7167f9e8d
-
----------------------------------------------
-
 Checking pipeline run status...
 19/09/2025 14:23:45 Status: Queued
 19/09/2025 14:23:56 Status: InProgress
@@ -229,8 +213,6 @@ Checking pipeline run status...
 19/09/2025 14:33:07 Status: InProgress
 19/09/2025 14:33:18 Status: Failed
 Failed Duration Ms: 571963
----------------------------------------------
-
 Checking copy activity run details...
 Failed Duration Ms: 561398
 {
