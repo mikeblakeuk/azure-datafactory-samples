@@ -1,0 +1,21 @@
+{
+    "DataFactoryLakehouse": {
+        "Azure": {
+            "SubscriptionId": "AAAA-SUBSCRIPTION-GUID",
+            "ResourceGroupName": "AAAA-RESOURCE-GROUP",
+            "DataFactoryNamePrefix": "datafactory-",
+            "DataFactoryLocation": "eastus"
+        },
+        "Fabric": {
+            "FabricTenantId": "AAAA-FabricTenantId",
+            "FabricWorkspaceId": "AAAA-FabricWorkspaceId",
+            "FabricLakehouseId": "AAAA-FabricLakehouseId",
+            "FabricLakehouseSchemaName": "AAAA-YourSchema",
+            "FabricLakehouseTableName": "public_holidays"
+        },
+        "DataFactory": {
+            "ClientId": "AAAA-CLIENTID",
+            "ClientSecret": "AAAA-SECRET"
+        }
+    }
+}

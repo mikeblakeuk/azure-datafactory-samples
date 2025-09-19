@@ -51,16 +51,8 @@ Console.WriteLine("Creating dataset source " + dataFactorySourceName + "...");
 var linkedServiceReference = new DataFactoryLinkedServiceReference(DataFactoryLinkedServiceReferenceKind.LinkedServiceReference, dataFactoryLinkedServiceName);
 var sourceDataset = new LakeHouseTableDataset(linkedServiceReference)
 {
-    Table = DataFactoryElement<string>.FromExpression($"@dataset().{DatasetParameters.Table}"),
-    // https://github.com/Azure/azure-sdk-for-net/issues/48545
-    SchemaTypePropertiesSchema = DataFactoryElement<string>.FromExpression($"@dataset().{DatasetParameters.Schema}"),
-    Structure = DataFactoryElement<IList<DatasetDataElement>>.FromExpression($"@dataset().{DatasetParameters.Structure}"),
-    Parameters =
-    {
-        { DatasetParameters.Table, new EntityParameterSpecification(EntityParameterType.String) },
-        { DatasetParameters.Schema, new EntityParameterSpecification(EntityParameterType.String) },
-        { DatasetParameters.Structure, new EntityParameterSpecification(EntityParameterType.Object) }
-    }
+    SchemaTypePropertiesSchema = options.Fabric.FabricLakehouseSchemaName,
+    Table = options.Fabric.FabricLakehouseTableName
 };
 var datasetData = new DataFactoryDatasetData(sourceDataset);
 var datasetOperation = dataFactoryResource.GetDataFactoryDatasets().CreateOrUpdate(WaitUntil.Completed, dataFactorySourceName, datasetData);
@@ -132,34 +124,13 @@ Console.WriteLine(dataFactoryDataFlowOperation.WaitForCompletionResponse().Conte
 
 // Create a pipeline
 Console.WriteLine(line + "Creating pipeline" + dataFactoryPipelineName + "...");
-var structure = new List<DatasetSchemaDataElement>
-{
-    new() { SchemaColumnName = "countryOrRegion", SchemaColumnType = "String" },
-    new() { SchemaColumnName = "holidayName", SchemaColumnType = "String" },
-    new() { SchemaColumnName = "normalizeHolidayName", SchemaColumnType = "String" },
-    new() { SchemaColumnName = "countryRegionCode", SchemaColumnType = "String" }
-};
 
-var datasetParameters = new Dictionary<string, Dictionary<string, object>>
-{
-    {
-        sourceName, new Dictionary<string, object>
-        {
-            { DatasetParameters.Schema, DataFactoryElement<string>.FromLiteral(options.Fabric.FabricLakehouseSchemaName) },
-            { DatasetParameters.Table, DataFactoryElement<string>.FromLiteral(options.Fabric.FabricLakehouseTableName) },
-            { DatasetParameters.Structure, DataFactoryElement<IList<DatasetSchemaDataElement>>.FromLiteral(structure.ToList()) }
-        }
-    }
-};
 
 var pipelineData = new DataFactoryPipelineData
 {
     Activities =
     {
-        new ExecuteDataFlowActivity(dataFactoryDataFlowPipelineActivityName, new DataFlowReference(DataFlowReferenceType.DataFlowReference, dataFactoryDataFlowName)
-        {
-            DatasetParameters = BinaryData.FromObjectAsJson(datasetParameters)
-        })
+        new ExecuteDataFlowActivity(dataFactoryDataFlowPipelineActivityName, new DataFlowReference(DataFlowReferenceType.DataFlowReference, dataFactoryDataFlowName))
     }
 };
 
