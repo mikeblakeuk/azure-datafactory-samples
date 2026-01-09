@@ -1,5 +1,5 @@
 ﻿// Based on https://learn.microsoft.com/en-us/azure/data-factory/quickstart-create-data-factory-dot-net
-
+// Note; Lakehouse schemas are now GA
 var line = $"{Environment.NewLine}---------------------------------------------{Environment.NewLine}";
 
 var host = new HostBuilder()
