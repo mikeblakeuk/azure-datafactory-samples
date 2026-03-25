@@ -1,6 +1,4 @@
-﻿namespace DataFactoryLakehouse.Configuration;
-
-public class DataFactoryLakehouseOptions
+﻿public class DataFactoryLakehouseOptions
 {
     public const string Key = "DataFactoryLakehouse";
 
@@ -24,8 +22,6 @@ public class FabricOptions
     public string FabricLakehouseId { get; set; } = string.Empty;
     public string FabricLakehouseSchemaName { get; set; } = string.Empty;
     public string FabricLakehouseTableName { get; set; } = string.Empty;
-
-    public string[] CountryCodes { get; set; } = [];
 }
 
 public class DataFactoryOptions
