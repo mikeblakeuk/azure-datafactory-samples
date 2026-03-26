@@ -1,7 +1,5 @@
-﻿//
-// Based on https://learn.microsoft.com/en-us/azure/data-factory/quickstart-create-data-factory-dot-net
-//
-
+﻿// Based on https://learn.microsoft.com/en-us/azure/data-factory/quickstart-create-data-factory-dot-net
+// Note; Lakehouse schemas are now GA so this should work. 2
 var line = $"{Environment.NewLine}---------------------------------------------{Environment.NewLine}";
 
 var host = new HostBuilder()
@@ -55,8 +53,7 @@ Console.WriteLine("Creating dataset source " + dataFactorySourceName + "...");
 var linkedServiceReference = new DataFactoryLinkedServiceReference(DataFactoryLinkedServiceReferenceKind.LinkedServiceReference, dataFactoryLinkedServiceName);
 var sourceDataset = new LakeHouseTableDataset(linkedServiceReference)
 {
-    SchemaTypePropertiesSchema = options.Fabric.FabricLakehouseSchemaName,
-    Table = options.Fabric.FabricLakehouseTableName
+    Table = options.Fabric.FabricLakehouseSchemaName + "/" + options.Fabric.FabricLakehouseTableName
 };
 var datasetData = new DataFactoryDatasetData(sourceDataset);
 var datasetOperation = dataFactoryResource.GetDataFactoryDatasets().CreateOrUpdate(WaitUntil.Completed, dataFactorySourceName, datasetData);
@@ -77,7 +74,7 @@ var sinkReference = new DataFactoryDatasetData(
 var sinkOperation = await dataFactoryResource.GetDataFactoryDatasets().CreateOrUpdateAsync(WaitUntil.Completed, dataFactorySinkName, sinkReference, ifMatch: "*");
 Console.WriteLine(sinkOperation.WaitForCompletionResponse().Content + line);
 
-//
+
 // Create Data Flow
 //
 Console.WriteLine("Creating Data Flow " + dataFactoryDataFlowName + "...");
