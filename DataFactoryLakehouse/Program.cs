@@ -6,7 +6,6 @@ var host = new HostBuilder()
     .ConfigureAppConfiguration((_, builder) => builder.AddJsonFile("appsettings.json", optional: true))
     .ConfigureServices((context, services) => services.Configure<DataFactoryLakehouseOptions>(context.Configuration.GetSection(DataFactoryLakehouseOptions.Key)))
     .Build();
-
 var options = host.Services.GetRequiredService<IOptions<DataFactoryLakehouseOptions>>().Value;
 
 // Data Factory names
@@ -17,10 +16,9 @@ var dataFactoryDataFlowName = "lakehouseDataFlow";
 var dataFactoryPipelineName = "lakehousePipeline";
 var dataFactoryDataFlowPipelineActivityName = "lakehouseDataFlowActivity";
 
-var sourceName = "source1";
-var sinkName = "sink1";
-
+//
 // Credentials for this application to connect to Azure
+//
 var tokenCredentials = new DefaultAzureCredential();
 var armClient = new ArmClient(tokenCredentials, options.Azure.SubscriptionId);
 var dataFactoryName = $"{options.Azure.DataFactoryNamePrefix}{DateTime.UtcNow:yyyy-MM-dd-HHmm}" ;
@@ -30,7 +28,9 @@ var resourceGroupResource = armClient.GetResourceGroupResource(ResourceGroupReso
 var operation = await resourceGroupResource.GetDataFactories().CreateOrUpdateAsync(WaitUntil.Completed, dataFactoryName, new DataFactoryData(location: options.Azure.DataFactoryLocation), "*");
 var dataFactoryResource = operation.Value;
 
+//
 // Create a Lakehouse linked service
+//
 Console.WriteLine("Creating a linked service " + dataFactoryLinkedServiceName + "...");
 var linkedServiceData = new DataFactoryLinkedServiceData(
     new LakeHouseLinkedService
@@ -46,7 +46,9 @@ var linkedServiceData = new DataFactoryLinkedServiceData(
 var linkedServiceOperation = await dataFactoryResource.GetDataFactoryLinkedServices().CreateOrUpdateAsync(WaitUntil.Completed, dataFactoryLinkedServiceName, linkedServiceData, "*");
 Console.WriteLine(linkedServiceOperation.WaitForCompletionResponse().Content + line);
 
-// Create an LakeHouseTableDataset Source
+//
+// Create a Lakehouse Source dataset
+//
 Console.WriteLine("Creating dataset source " + dataFactorySourceName + "...");
 var linkedServiceReference = new DataFactoryLinkedServiceReference(DataFactoryLinkedServiceReferenceKind.LinkedServiceReference, dataFactoryLinkedServiceName);
 var sourceDataset = new LakeHouseTableDataset(linkedServiceReference)
@@ -57,7 +59,9 @@ var datasetData = new DataFactoryDatasetData(sourceDataset);
 var datasetOperation = dataFactoryResource.GetDataFactoryDatasets().CreateOrUpdate(WaitUntil.Completed, dataFactorySourceName, datasetData);
 Console.WriteLine(datasetOperation.WaitForCompletionResponse().Content + line);
 
-// Create an LakeHouseTableDataset Sink
+//
+// Create a Lakehouse Sink  dataset
+//
 Console.WriteLine("Creating dataset sink " + dataFactorySinkName + "...");
 var sinkReference = new DataFactoryDatasetData(
     new LakeHouseTableDataset(
@@ -72,7 +76,10 @@ Console.WriteLine(sinkOperation.WaitForCompletionResponse().Content + line);
 
 
 // Create Data Flow
+//
 Console.WriteLine("Creating Data Flow " + dataFactoryDataFlowName + "...");
+var sourceName = "source1";
+var sinkName = "sink1";
 var dataFactoryDataFlowData = new DataFactoryDataFlowData(
     new DataFactoryMappingDataFlowProperties
     {
@@ -90,42 +97,43 @@ var dataFactoryDataFlowData = new DataFactoryDataFlowData(
                 Dataset = new DatasetReference(DatasetReferenceType.DatasetReference, dataFactorySinkName)
             }
         },
-        Script = $@"
-source(output(
-        countryOrRegion as string,
-		holidayName as string,
-        normalizeHolidayName as string,
-		countryRegionCode as string
-    ),
-    allowSchemaDrift: true,
-	validateSchema: false) ~> {sourceName}
-{sourceName} sink(allowSchemaDrift: true,
-	validateSchema: false,
-	input(
-        countryOrRegion as string,
-		holidayName as string,
-        normalizeHolidayName as string,
-		countryRegionCode as string
-    ),
-	deletable:false,
-	insertable:true,
-	updateable:false,
-	upsertable:false,
-	optimizedWrite: false,
-	mergeSchema: false,
-	autoCompact: false,
-	skipDuplicateMapInputs: true,
-	skipDuplicateMapOutputs: true) ~> {sinkName}"
+        Script = $"""
+
+                  source(output(
+                          countryOrRegion as string,
+                  		holidayName as string,
+                          normalizeHolidayName as string,
+                  		countryRegionCode as string
+                      ),
+                      allowSchemaDrift: true,
+                  	validateSchema: false) ~> {sourceName}
+                  {sourceName} sink(allowSchemaDrift: true,
+                  	validateSchema: false,
+                  	input(
+                          countryOrRegion as string,
+                  		holidayName as string,
+                          normalizeHolidayName as string,
+                  		countryRegionCode as string
+                      ),
+                  	deletable:false,
+                  	insertable:true,
+                  	updateable:false,
+                  	upsertable:false,
+                  	optimizedWrite: false,
+                  	mergeSchema: false,
+                  	autoCompact: false,
+                  	skipDuplicateMapInputs: true,
+                  	skipDuplicateMapOutputs: true) ~> {sinkName}
+                  """
     }
 );
-
 var dataFactoryDataFlowOperation = await dataFactoryResource.GetDataFactoryDataFlows().CreateOrUpdateAsync(WaitUntil.Completed, dataFactoryDataFlowName, dataFactoryDataFlowData, "*");
 Console.WriteLine(dataFactoryDataFlowOperation.WaitForCompletionResponse().Content + line);
 
+//
 // Create a pipeline
+//
 Console.WriteLine(line + "Creating pipeline" + dataFactoryPipelineName + "...");
-
-
 var pipelineData = new DataFactoryPipelineData
 {
     Activities =
@@ -133,11 +141,12 @@ var pipelineData = new DataFactoryPipelineData
         new ExecuteDataFlowActivity(dataFactoryDataFlowPipelineActivityName, new DataFlowReference(DataFlowReferenceType.DataFlowReference, dataFactoryDataFlowName))
     }
 };
-
 var pipelineOperation = dataFactoryResource.GetDataFactoryPipelines().CreateOrUpdate(WaitUntil.Completed, dataFactoryPipelineName, pipelineData);
 Console.WriteLine(pipelineOperation.WaitForCompletionResponse().Content + line);
 
+//
 // Create a pipeline run
+//
 Console.WriteLine("Creating pipeline run...");
 var pipelineResource = dataFactoryResource.GetDataFactoryPipeline(dataFactoryPipelineName);
 var runResponse = pipelineResource.Value.CreateRun();
@@ -148,7 +157,9 @@ var urlToFactory = pipelineResource.Value.Id.ToString().Replace("/pipelines/lake
 Console.WriteLine("Web UI Link: https://adf.azure.com/en/monitoring/pipelineruns?factory=" + urlToFactory);
 Console.WriteLine(line);
 
-// Monitor the pipeline run
+//
+// Monitor a pipeline run
+//
 Console.WriteLine("Checking pipeline run status...");
 DataFactoryPipelineRunInfo pipelineRun;
 while (true)
@@ -166,13 +177,10 @@ Console.WriteLine(pipelineRun.Status + " Duration Ms: " + pipelineRun.DurationIn
 Console.WriteLine("Checking copy activity run details...");
 var queryResponse = dataFactoryResource.GetActivityRun(pipelineRun.RunId.ToString(),
     new RunFilterContent(DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(10)));
-var enumerator = queryResponse.GetEnumerator();
-using IDisposable enumerator1 = enumerator;
-enumerator.MoveNext();
 
-if (enumerator.Current != null)
+foreach (var pipelineActivityRunInformation in queryResponse)
 {
-    Console.WriteLine(enumerator.Current.Status + " Duration Ms: " + enumerator.Current.DurationInMs);
-    Console.WriteLine(enumerator.Current.Output);
-    Console.WriteLine(enumerator.Current.Error);
+    Console.WriteLine(pipelineActivityRunInformation.Status + " Duration Ms: " + pipelineActivityRunInformation.DurationInMs);
+    Console.WriteLine(pipelineActivityRunInformation.Output);
+    Console.WriteLine(pipelineActivityRunInformation.Error);
 }
